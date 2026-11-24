@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Conectar WhatsApp · prueba</title>
+<style>body{font-family:system-ui,sans-serif;max-width:560px;margin:40px auto;padding:0 16px;color:#1a1a1a;background:#fafafa}button{font-size:18px;padding:14px 22px;border:0;border-radius:10px;background:#1877f2;color:#fff;cursor:pointer}pre{background:#fff;border:1px solid #ddd;padding:12px;border-radius:8px;white-space:pre-wrap;word-break:break-all}</style>
+</head><body>
+<h1>Conectar WhatsApp Business (prueba)</h1>
+<p>Al tocar el botón, Meta abre una ventana. Elige tu portafolio de pruebas, escribe el número que ya usas en WhatsApp Business y acepta compartir el historial.</p>
+<button onclick="conectar()">Conectar mi WhatsApp Business</button>
+<h3>Lo que responde Meta</h3><pre id="log">(todavía nada)</pre>
+<script>
+const APP_ID='1653463462606975', CONFIG_ID='1701822517968584';
+const LOG_URL='https://barberia-n8n.dggcnv.easypanel.host/webhook/wa-coexistencia-sesion';
+const logEl=document.getElementById('log');
+function anotar(o){
+  logEl.textContent=(logEl.textContent==='(todavía nada)'?'':logEl.textContent+'\n\n')+JSON.stringify(o,null,2);
+  try{ new Image().src=LOG_URL+'?d='+encodeURIComponent(JSON.stringify(o)); }catch(e){}
+}
+anotar({paso:'pagina_cargada', origen:String(location.origin)});
+window.fbAsyncInit=function(){ FB.init({appId:APP_ID,autoLogAppEvents:true,xfbml:false,version:'v27.0'}); anotar({paso:'sdk_listo'}); };
+window.addEventListener('message',function(event){
+  if(!String(event.origin).endsWith('facebook.com')) return;
+  try{ var data=JSON.parse(event.data); if(data.type==='WA_EMBEDDED_SIGNUP') anotar(Object.assign({paso:'sesion'},data)); }catch(e){}
+});
+function conectar(){
+  if(!window.FB){ anotar({paso:'error', detalle:'el SDK de Facebook no cargó'}); return; }
+  FB.login(function(r){ anotar({paso:'login', status:r.status, trajo_code:!!(r.authResponse&&r.authResponse.code)}); },
+    {config_id:CONFIG_ID,response_type:'code',override_default_response_type:true,extras:{setup:{},version:'v5'}});
+}
+</script>
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
+</body></html>
